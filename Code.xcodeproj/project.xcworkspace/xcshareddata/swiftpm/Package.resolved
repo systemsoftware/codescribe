@@ -1,0 +1,15 @@
+{
+  "originHash" : "370fde7f405690359f6a41c5fa02aed5c48cc27a36adf2ed652543f8426328f8",
+  "pins" : [
+    {
+      "identity" : "swiftymonaco",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/systemsoftware/SwiftyMonaco",
+      "state" : {
+        "branch" : "main",
+        "revision" : "c0fb8b29938f16b1e5e86151fbff940c45d9a77a"
+      }
+    }
+  ],
+  "version" : 3
+}

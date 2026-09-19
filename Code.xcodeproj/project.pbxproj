@@ -6,6 +6,10 @@
 	objectVersion = 110;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		A5A879E1305F326B00C1A221 /* SwiftyMonaco in Frameworks */ = {isa = PBXBuildFile; productRef = A5A879E0305F326B00C1A221 /* SwiftyMonaco */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		A5A879C8305F2BF500C1A221 /* Code.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Code.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -22,6 +26,7 @@
 		A5A879C5305F2BF500C1A221 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			files = (
+				A5A879E1305F326B00C1A221 /* SwiftyMonaco in Frameworks */,
 			);
 		};
 /* End PBXFrameworksBuildPhase section */
@@ -60,6 +65,9 @@
 				A5A879CA305F2BF500C1A221 /* Code */,
 			);
 			name = Code;
+			packageProductDependencies = (
+				A5A879E0305F326B00C1A221 /* SwiftyMonaco */,
+			);
 			productName = Code;
 			productReference = A5A879C8305F2BF500C1A221 /* Code.app */;
 			productType = "com.apple.product-type.application";
@@ -88,6 +96,9 @@
 			);
 			mainGroup = A5A879BF305F2BF500C1A221;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				A5A879DF305F326B00C1A221 /* XCRemoteSwiftPackageReference "SwiftyMonaco" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = A5A879C9305F2BF500C1A221 /* Products */;
 			projectDirPath = "";
@@ -241,7 +252,17 @@
 				DEVELOPMENT_TEAM = 8K8948D7UD;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_INCOMING_NETWORK_CONNECTIONS = NO;
+				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
 				ENABLE_PREVIEWS = YES;
+				ENABLE_RESOURCE_ACCESS_AUDIO_INPUT = NO;
+				ENABLE_RESOURCE_ACCESS_BLUETOOTH = NO;
+				ENABLE_RESOURCE_ACCESS_CALENDARS = NO;
+				ENABLE_RESOURCE_ACCESS_CAMERA = NO;
+				ENABLE_RESOURCE_ACCESS_CONTACTS = NO;
+				ENABLE_RESOURCE_ACCESS_LOCATION = NO;
+				ENABLE_RESOURCE_ACCESS_PRINTING = NO;
+				ENABLE_RESOURCE_ACCESS_USB = NO;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
@@ -285,7 +306,17 @@
 				DEVELOPMENT_TEAM = 8K8948D7UD;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_INCOMING_NETWORK_CONNECTIONS = NO;
+				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
 				ENABLE_PREVIEWS = YES;
+				ENABLE_RESOURCE_ACCESS_AUDIO_INPUT = NO;
+				ENABLE_RESOURCE_ACCESS_BLUETOOTH = NO;
+				ENABLE_RESOURCE_ACCESS_CALENDARS = NO;
+				ENABLE_RESOURCE_ACCESS_CAMERA = NO;
+				ENABLE_RESOURCE_ACCESS_CONTACTS = NO;
+				ENABLE_RESOURCE_ACCESS_LOCATION = NO;
+				ENABLE_RESOURCE_ACCESS_PRINTING = NO;
+				ENABLE_RESOURCE_ACCESS_USB = NO;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
@@ -339,6 +370,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		A5A879DF305F326B00C1A221 /* XCRemoteSwiftPackageReference "SwiftyMonaco" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/systemsoftware/SwiftyMonaco";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		A5A879E0305F326B00C1A221 /* SwiftyMonaco */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A5A879DF305F326B00C1A221 /* XCRemoteSwiftPackageReference "SwiftyMonaco" */;
+			productName = SwiftyMonaco;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = A5A879C0305F2BF500C1A221 /* Project object */;
 	validationLevel = 1;
