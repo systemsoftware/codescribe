@@ -44,6 +44,7 @@ struct File: Identifiable, Hashable {
 struct ContentView: View {
     
     @Binding var activeFile: File?
+    @Binding var openFiles: [File]
     @State var selDir: URL? = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first
     @State var files: [File] = []
     @State private var securityScopedDirectory: URL?
@@ -55,6 +56,8 @@ struct ContentView: View {
     @State var showNewFile = false
     @State var newFileName = ""
     @State var newFileType = 0
+    
+    @State var showSettings = false
     
     @ViewBuilder
     func contextMenu(_ item: File) -> some View {
@@ -182,6 +185,14 @@ struct ContentView: View {
                         Label("Open Folder", systemImage: "folder")
                     }
                 }
+                
+                ToolbarItem {
+                    Button {
+                        showSettings.toggle()
+                    } label: {
+                        Label("Settings", systemImage: "gearshape")
+                    }
+                }
             }
             .task(id: selDir) {
                 if let selDir = selDir {
@@ -193,8 +204,18 @@ struct ContentView: View {
             }
         } detail: {
             if let activeFile = activeFile, !activeFile.isDirectory {
-                EditorView(file: activeFile)
-                    .id(activeFile.id)
+                if ["png", "jpg", "jpeg", "gif", "svg", "webp", "heic"].contains(activeFile.url.pathExtension.lowercased()) {
+                    VStack {
+                        Spacer()
+                        UniversalImage(data: try? Data(contentsOf: activeFile.url))
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            .padding()
+                        Spacer()
+                    }
+                } else {
+                    EditorView(file: activeFile)
+                        .id(activeFile.id)
+                }
             } else {
                 VStack(spacing: 16) {
                     Image(systemName: "curlybraces.square")
@@ -221,6 +242,10 @@ struct ContentView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .padding()
             }
+        }
+        .navigationTitle(activeFile?.name ?? "Code")
+        .sheet(isPresented: $showSettings) {
+            SettingsView()
         }
         .fileImporter(isPresented: $showImporter, allowedContentTypes: [.folder]) { result in
             switch result {

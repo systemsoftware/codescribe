@@ -17,12 +17,16 @@ struct CodeApp: App {
     }()
     */
     @State var activeFile: File? = nil
+    @State var openFiles: [File] = []
 
     var body: some Scene {
-        WindowGroup {
-            ContentView(activeFile: $activeFile)
-                .navigationTitle(activeFile?.name ?? "Code")
+        WindowGroup(id: "document-window") {
+            ContentView(activeFile: $activeFile, openFiles: $openFiles)
         }
-   //     .modelContainer(sharedModelContainer)
+        #if os(macOS)
+        Settings {
+            SettingsView()
+        }
+        #endif
     }
 }
