@@ -1,10 +1,3 @@
-//
-//  CodeApp.swift
-//  Code
-//
-//  Created by Bryce Agostini on 9/19/26.
-//
-
 import SwiftUI
 import SwiftData
 
@@ -22,10 +15,13 @@ struct CodeApp: App {
             fatalError("Could not create ModelContainer: \(error)")
         }
     }()
+    
+    @State var activeFile: File? = nil
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            ContentView(activeFile: $activeFile)
+                .navigationTitle(activeFile?.name ?? "Code")
         }
         .modelContainer(sharedModelContainer)
     }

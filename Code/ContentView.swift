@@ -1,13 +1,28 @@
-//
-//  ContentView.swift
-//  Code
-//
-//  Created by Bryce Agostini on 9/19/26.
-//
-
 import SwiftUI
 import SwiftData
 import SwiftyMonaco
+internal import UniformTypeIdentifiers
+
+func moveToTrash(url: URL) {
+        let fileManager = FileManager.default
+        
+        guard fileManager.fileExists(atPath: url.path) else {
+            return
+        }
+        
+        do {
+            var resultingURL: NSURL?
+            // Execute the system trash operation
+            try fileManager.trashItem(at: url, resultingItemURL: &resultingURL)
+            
+            if let trashedPath = resultingURL? .path {
+                print("Trashed location: \(trashedPath)")
+            }
+        } catch {
+            print(error)
+        }
+    }
+
 
 enum FileType: String, Hashable {
     case file = "file"
@@ -30,9 +45,37 @@ struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
     @Query private var items: [Item]
     
-    @State var activeFile: File? = nil
+    @Binding var activeFile: File?
     @State var selDir: URL? = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first
     @State var files: [File] = []
+    @State private var securityScopedDirectory: URL?
+    
+    @State var showImporter = false
+    
+    @State var moveToTrashItem: File? = nil
+    
+    @State var showNewFile = false
+    @State var newFileName = ""
+    @State var newFileType = 0
+    
+    @ViewBuilder
+    func contextMenu(_ item: File) -> some View {
+        
+        Text(item.name)
+            .disabled(true)
+        
+        Divider()
+        
+        #if os(macOS)
+        Button("Reveal in Finder") {
+            NSWorkspace.shared.selectFile(item.url.path, inFileViewerRootedAtPath: item.url.deletingLastPathComponent().path)
+        }
+        #endif
+        
+        Button("Trash") {
+            moveToTrashItem = item
+        }
+    }
     
     var body: some View {
         NavigationSplitView {
@@ -43,9 +86,16 @@ struct ContentView: View {
                             if item.isDirectory {
                                 Label(item.name, systemImage: "folder")
                                     .foregroundColor(.primary)
+                                    .contextMenu {
+                                        contextMenu(item)
+                                    }
+
                             } else {
                                 Label(item.name, systemImage: systemImage(for: item))
                                     .tag(item)
+                                    .contextMenu {
+                                        contextMenu(item)
+                                    }
                             }
                         }
                     }
@@ -55,12 +105,83 @@ struct ContentView: View {
             .navigationSplitViewColumnWidth(min: 200, ideal: 240, max: 400)
 #endif
             .navigationTitle(selDir?.lastPathComponent ?? "Files")
+            .alert(item: $moveToTrashItem) { item in
+                Alert(
+                    title: Text("Move to Trash"),
+                    message: Text("Are you sure you want to move '\(item.name)' to the Trash?"),
+                    primaryButton: .destructive(Text("Move to Trash")) {
+                        moveToTrash(url: item.url)
+                        if let index = files.firstIndex(of: item) {
+                            files.remove(at: index)
+                        }
+                        if activeFile == item {
+                            activeFile = nil
+                        }
+                    },
+                    secondaryButton: .cancel() {
+                        moveToTrashItem = nil
+                    }
+                )
+            }
+            .sheet(isPresented: $showNewFile) {
+                VStack {
+                    Text("New File")
+                        .font(.headline)
+                        .padding()
+                    
+                    Picker("File Type", selection: $newFileType) {
+                        Text("File").tag(0)
+                        Text("Directory").tag(1)
+                    }
+                    .pickerStyle(.segmented)
+                    
+                    TextField("File Name", text: $newFileName)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                        .padding()
+                    
+                    HStack {
+                        Button("Cancel") {
+                            showNewFile = false
+                        }
+                        .padding()
+                        
+                        Spacer()
+                        
+                        Button("Create", role:.confirm) {
+                            let path = selDir?.appendingPathComponent(newFileName) ?? URL(fileURLWithPath: newFileName)
+                            do {
+                                if newFileType == 0 {
+                                    try createFile(at: path, string: "")
+                                } else {
+                                    try mkDir(at: path)
+                                }
+                            } catch {
+                                print("Failed to create \(newFileType == 0 ? "file" : "directory"): \(error)")
+                            }
+                            if let selDir = selDir {
+                                files = loadContents(of: selDir)
+                            }
+                            showNewFile = false
+                        }
+                        .padding()
+                    }
+                }
+                .padding()
+            }
             .toolbar {
-                ToolbarItem(placement: .primaryAction) {
+                ToolbarItem {
                     Button {
-                        loadDir()
+                        showNewFile.toggle()
                     } label: {
-                        Label("Open Folder", systemImage: "folder.badge.plus")
+                        Label("New File", systemImage: "plus")
+                    }
+                }
+
+                ToolbarItem {
+                    Button {
+                        showImporter.toggle()
+                    } label: {
+                        Label("Open Folder", systemImage: "folder")
                     }
                 }
             }
@@ -91,7 +212,7 @@ struct ContentView: View {
                             .foregroundColor(.secondary)
                         
                         Button("Open Directory") {
-                            loadDir()
+                            showImporter.toggle()
                         }
                         .buttonStyle(.borderedProminent)
                     } else {
@@ -102,6 +223,27 @@ struct ContentView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .padding()
             }
+        }
+        .fileImporter(isPresented: $showImporter, allowedContentTypes: [.folder]) { result in
+            switch result {
+            case .success(let url):
+                if let securityScopedDirectory {
+                    securityScopedDirectory.stopAccessingSecurityScopedResource()
+                }
+
+                let isSecurityScoped = url.startAccessingSecurityScopedResource()
+                securityScopedDirectory = isSecurityScoped ? url : nil
+
+                selDir = url
+                files = loadContents(of: url)
+                activeFile = findFirstFile(in: files)
+            case .failure(let error):
+                print("Failed to import folder: \(error)")
+            }
+        }
+        .onDisappear {
+            securityScopedDirectory?.stopAccessingSecurityScopedResource()
+            securityScopedDirectory = nil
         }
     }
     
@@ -175,19 +317,5 @@ struct ContentView: View {
             return "doc"
         }
     }
-    
-    private func loadDir() {
-        let panel = NSOpenPanel()
-        panel.canChooseDirectories = true
-        panel.canChooseFiles = false
-        panel.allowsMultipleSelection = false
-        panel.prompt = "Open"
-        if panel.runModal() == .OK {
-            if let url = panel.url {
-                files = []
-                selDir = url
-                activeFile = nil
-            }
-        }
-    }
+
 }
