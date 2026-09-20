@@ -3,7 +3,7 @@ import SwiftData
 
 @main
 struct CodeApp: App {
-    var sharedModelContainer: ModelContainer = {
+  /*  var sharedModelContainer: ModelContainer = {
         let schema = Schema([
             Item.self,
         ])
@@ -15,7 +15,7 @@ struct CodeApp: App {
             fatalError("Could not create ModelContainer: \(error)")
         }
     }()
-    
+    */
     @State var activeFile: File? = nil
 
     var body: some Scene {
@@ -23,6 +23,6 @@ struct CodeApp: App {
             ContentView(activeFile: $activeFile)
                 .navigationTitle(activeFile?.name ?? "Code")
         }
-        .modelContainer(sharedModelContainer)
+   //     .modelContainer(sharedModelContainer)
     }
 }

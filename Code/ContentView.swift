@@ -42,8 +42,6 @@ struct File: Identifiable, Hashable {
 }
 
 struct ContentView: View {
-    @Environment(\.modelContext) private var modelContext
-    @Query private var items: [Item]
     
     @Binding var activeFile: File?
     @State var selDir: URL? = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first
