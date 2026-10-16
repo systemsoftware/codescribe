@@ -59,6 +59,8 @@ struct ContentView: View {
     
     @State var showSettings = false
     
+    @State var hasUnsaved = false
+    
     @ViewBuilder
     func contextMenu(_ item: File) -> some View {
         
@@ -124,57 +126,55 @@ struct ContentView: View {
                     }
                 )
             }
-            .sheet(isPresented: $showNewFile) {
-                VStack {
-                    Text("New File")
-                        .font(.headline)
-                        .padding()
-                    
-                    Picker("File Type", selection: $newFileType) {
-                        Text("File").tag(0)
-                        Text("Directory").tag(1)
-                    }
-                    .pickerStyle(.segmented)
-                    
-                    TextField("File Name", text: $newFileName)
-                        .textFieldStyle(RoundedBorderTextFieldStyle())
-                        .padding()
-                    
-                    HStack {
-                        Button("Cancel") {
-                            showNewFile = false
-                        }
-                        .padding()
-                        
-                        Spacer()
-                        
-                        Button("Create", role:.confirm) {
-                            let path = selDir?.appendingPathComponent(newFileName) ?? URL(fileURLWithPath: newFileName)
-                            do {
-                                if newFileType == 0 {
-                                    try createFile(at: path, string: "")
-                                } else {
-                                    try mkDir(at: path)
-                                }
-                            } catch {
-                                print("Failed to create \(newFileType == 0 ? "file" : "directory"): \(error)")
-                            }
-                            if let selDir = selDir {
-                                files = loadContents(of: selDir)
-                            }
-                            showNewFile = false
-                        }
-                        .padding()
-                    }
-                }
-                .padding()
-            }
             .toolbar {
                 ToolbarItem {
                     Button {
                         showNewFile.toggle()
                     } label: {
                         Label("New File", systemImage: "plus")
+                    }
+                    
+                    .popover(isPresented: $showNewFile) {
+                        VStack {
+                            Picker("", selection: $newFileType) {
+                                Text("File").tag(0)
+                                Text("Directory").tag(1)
+                            }
+                            .pickerStyle(.segmented)
+                            
+                            TextField("Name", text: $newFileName)
+                                .textFieldStyle(RoundedBorderTextFieldStyle())
+                                .padding()
+                            
+                            HStack {
+                                Button("Cancel") {
+                                    showNewFile = false
+                                }
+                                .padding(.horizontal)
+                                
+                                Spacer()
+                                
+                                Button("Create", role:.confirm) {
+                                    let path = selDir?.appendingPathComponent(newFileName) ?? URL(fileURLWithPath: newFileName)
+                                    do {
+                                        if newFileType == 0 {
+                                            try createFile(at: path, string: "")
+                                        } else {
+                                            try mkDir(at: path)
+                                        }
+                                    } catch {
+                                        print("Failed to create \(newFileType == 0 ? "file" : "directory"): \(error)")
+                                    }
+                                    if let selDir = selDir {
+                                        files = loadContents(of: selDir)
+                                    }
+                                    showNewFile = false
+                                }
+                                .buttonStyle(.borderedProminent)
+                                .padding(.horizontal)
+                            }
+                        }
+                        .padding()
                     }
                 }
 
@@ -213,7 +213,7 @@ struct ContentView: View {
                         Spacer()
                     }
                 } else {
-                    EditorView(file: activeFile)
+                    EditorView(file: activeFile, hasUnsaved: $hasUnsaved)
                         .id(activeFile.id)
                 }
             } else {
@@ -222,7 +222,7 @@ struct ContentView: View {
                         .font(.system(size: 56))
                         .foregroundColor(.secondary)
                     
-                    Text("Welcome to Code")
+                    Text("Welcome")
                         .font(.title2)
                         .fontWeight(.semibold)
                     
@@ -243,7 +243,7 @@ struct ContentView: View {
                 .padding()
             }
         }
-        .navigationTitle(activeFile?.name ?? "Code")
+        .navigationTitle("\(activeFile?.name ?? "Code")\(hasUnsaved ? "*" : "")")
         .sheet(isPresented: $showSettings) {
             SettingsView()
         }

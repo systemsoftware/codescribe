@@ -93,13 +93,6 @@ struct SettingsView: View {
             }
             .formStyle(.grouped)
             .navigationTitle("Settings")
-            .toolbar {
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Done") {
-                        dismiss()
-                    }
-                }
-            }
         }
         #if os(macOS)
         .frame(minWidth: 460, idealWidth: 500, minHeight: 460, idealHeight: 520)
