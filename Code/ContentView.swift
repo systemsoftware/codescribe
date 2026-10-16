@@ -154,7 +154,7 @@ struct ContentView: View {
                                 
                                 Spacer()
                                 
-                                Button("Create", role:.confirm) {
+                                Button("Create") {
                                     let path = selDir?.appendingPathComponent(newFileName) ?? URL(fileURLWithPath: newFileName)
                                     do {
                                         if newFileType == 0 {
@@ -245,7 +245,15 @@ struct ContentView: View {
         }
         .navigationTitle("\(activeFile?.name ?? "Code")\(hasUnsaved ? "*" : "")")
         .sheet(isPresented: $showSettings) {
-            SettingsView()
+                SettingsView()
+                    .toolbar {
+                        Button {
+                            showSettings = false
+                        } label: {
+                            Text("Close")
+                                .frame(maxWidth: .infinity)
+                        }                        
+            }
         }
         .fileImporter(isPresented: $showImporter, allowedContentTypes: [.folder]) { result in
             switch result {
